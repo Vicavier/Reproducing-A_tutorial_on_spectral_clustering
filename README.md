@@ -1,5 +1,7 @@
 # A tutorial on spectral clustering
 > Ulrike von Luxburg
+>
+> Reproduced by Jiajian YANG
 
 This tutorial is set up as a self-contained introduction to spectral clustering. We derive spectral clustering from
 scratch and present different points of view to why spectral clustering works. Apart from basic linear algebra, no particular mathematical background is required by the reader.
@@ -212,4 +214,4 @@ plt.tight_layout()
 plt.show()
 ```
 
-![](./reproducing result.png)
+![](./reproducing_result.png)
