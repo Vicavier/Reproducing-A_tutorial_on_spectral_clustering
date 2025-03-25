@@ -167,26 +167,42 @@ def unnormalized_spectral_clustering(similarity_matrix, n_clusters, similarity_g
     # compute the first n_clusters eigenvalues and eigenvectors of L
     smallest_k_eigvals, smallest_k_eigvecs = eigsh(L, k=n_clusters, which='SM')
     return smallest_k_eigvals, smallest_k_eigvecs
+
+# Normoalized spectral clustering
+def normalized_spectral_clustering(similarity_matrix, n_clusters, similarity_graphs = 'fully_connected_graph'):
+    W = []
+    if similarity_graphs == 'fully_connected_graph':
+        W = fully_connected_graph(similarity_matrix)
+    elif similarity_graphs == 'knn_graph':
+        W = k_nearest_neighbors_graph(similarity_matrix, k=10)
+    D = degree_matrix(W)
+    D_inv_sqrt = np.diag(1.0 / np.sqrt(np.diag(D)))
+    L_sym = np.eye(W.shape[0]) - D_inv_sqrt @ W @ D_inv_sqrt
+    smallest_k_eigvals, smallest_k_eigvecs = eigsh(L_sym, k=n_clusters, which='SM')
+    return smallest_k_eigvals, smallest_k_eigvecs
+
+
 ```
 ```python
 eigvals1, eigvecs1 = unnormalized_spectral_clustering(similarity_matrix=S,n_clusters=10,similarity_graphs='knn_graph')
 eigvals2, eigvecs2 = unnormalized_spectral_clustering(similarity_matrix=S,n_clusters=10,similarity_graphs='fully_connected_graph')
+eigvals3, eigvecs3 = normalized_spectral_clustering(similarity_matrix=S,n_clusters=10,similarity_graphs='knn_graph')
+eigvals4, eigvecs4 = normalized_spectral_clustering(similarity_matrix=S,n_clusters=10,similarity_graphs='fully_connected_graph')
 # Plot the eigenvalues
-fig, axes = plt.subplots(2, 6, figsize=(18, 6))
+fig, axes = plt.subplots(4, 6, figsize=(18, 12))
+
 
 for i, (eigvals, title) in enumerate(zip(
-    [eigvals1, eigvals2], 
-    ["unnorm, knn",  "unnorm, full graph"]
+    [eigvals1, eigvals2,eigvals3,eigvals4], 
+    ["unnorm, knn",  "unnorm, full graph", "norm, knn","norm, full graph"]
 )):
-    axes[i, 0].plot(range(1, len(eigvals) + 1), eigvals, 'bo' if 'norm' in title else 'rD')
+    axes[i, 0].plot(range(1, len(eigvals) + 1), eigvals, 'bo' if (i == 0 or i==1) else 'rD')
     axes[i, 0].set_title("Eigenvalues")
     axes[i, 0].set_ylabel(title)
 
-# 绘制前 5 个特征向量（Eigenvectors）
-
 for i, (eigvecs, title) in enumerate(zip(
-    [eigvecs1, eigvecs2], 
-    ["unnorm, knn",  "unnorm, full graph"]
+    [eigvecs1, eigvecs2, eigvecs3, eigvecs4], 
+    ["unnorm, knn",  "unnorm, full graph","norm, knn","norm, full graph"]
 )):
     for j in range(5):  # 取前 5 个特征向量
         axes[i, j + 1].plot(data, eigvecs[:, j], 'b-')
@@ -196,4 +212,4 @@ plt.tight_layout()
 plt.show()
 ```
 
-![](./unnorm.png)
+![](./reproducing result.png)
